@@ -50,3 +50,31 @@ Reprodutibilidade
 requirements.txt, Dockerfile, Makefile, passos de ingestão.
 
 LLM local via Ollama configurável por .env (variável OLLAMA_MODEL).
+
+
+ifeq ($(OS),Windows_NT)
+VENV_PY := .venv\Scripts\python.exe
+else
+VENV_PY := .venv/bin/python
+endif
+
+PYTHON := $(if $(wildcard $(VENV_PY)),$(VENV_PY),python)
+
+.PHONY: setup ingest run eval eval-giskard
+
+setup:
+	$(PYTHON) -m venv .venv
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install -r requirements.txt
+
+ingest:
+	$(PYTHON) ingest/build_index.py --pdf data/corpus/IPCC_AR6_SYR_LongerReport.pdf --index-dir data/index
+
+run:
+	$(PYTHON) app/main.py
+
+eval:
+	$(PYTHON) eval/run_ragas.py
+
+eval-giskard:
+	$(PYTHON) eval/run_giskard.py
