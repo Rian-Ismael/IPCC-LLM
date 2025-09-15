@@ -8,8 +8,8 @@ RE_CIT = re.compile(
 
 def self_check(ans: Dict) -> Dict:
     txt = ans.get("answer", "")
-    if RE_CIT.search(txt) or "Não encontrei evidência suficiente" in txt:
+    if RE_CIT.search(txt) or "I have not found sufficient evidence" in txt:
         return {"ok": True}
-    if "Citações:" in txt and re.search(r"\bp\.\s*\d+\b", txt):
-        return {"ok": True, "note": "Citações apenas no rodapé"}
-    return {"ok": False, "reason": "Resposta sem citação de página do IPCC."}
+    if "Citations:" in txt and re.search(r"\bp\.\s*\d+\b", txt):
+        return {"ok": True, "note": "Citations only in the footer"}
+    return {"ok": False, "reason": "Response without IPCC page citation."}

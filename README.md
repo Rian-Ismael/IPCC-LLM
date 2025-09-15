@@ -1,80 +1,109 @@
-# Clima em Foco — IPCC AR6 (SYR Longer Report)
+# Clima em Foco – IPCC AR6 (SYR)
 
-**PoC** de RAG + Agentes (LangGraph) para responder perguntas sobre o IPCC AR6 (Relatório de Síntese — Longer Report) com **citações obrigatórias**, **self-check** e **avaliação automática via Giskard RAGET**.
+Assistente de perguntas e respostas baseado no **IPCC AR6 (SYR Longer Report)**, utilizando **RAG + agentes (LangChain + LangGraph)**.  
+O sistema recupera trechos do relatório oficial, gera respostas **com citações obrigatórias [p.X]** e aplica verificações anti-alucinação.
 
-## Stack
-Python 3.11, LangChain/LangGraph, Chroma, Sentence-Transformers, Streamlit, Giskard, Ollama (open-weights LLM).
+---
 
-## Como rodar
-1. Coloque o PDF em `data/corpus/IPCC_AR6_SYR_LongerReport.pdf`.
-2. Ingestão do corpus:
-   ```bash
-   make ingest
-   ```
+## 🚀 Funcionalidades
+- **RAG (Retrieval-Augmented Generation)** com Chroma + embeddings OSS.
+- **Orquestração com agentes LangGraph**:
+  - Supervisor → roteia intenções.
+  - Retriever → busca trechos no índice vetorial.
+  - Answerer → gera respostas com citações obrigatórias.
+  - Self-check → recusa respostas sem evidência.
+  - Safety → adiciona disclaimers.
+- **UI em Streamlit** para perguntas (PT/EN).
+- **Citações com links diretos para o PDF oficial do IPCC.**
+- **Avaliação planejada com RAGAS e Giskard**.
 
+---
 
-App (UI):
+## ⚙️ Instalação
 
-make run
+Pré-requisitos:
+- Python 3.10+
+- [Ollama](https://ollama.com/) instalado (para rodar modelos LLM open-weights).
+- Git + virtualenv.
 
-Avaliação automática (Giskard):
+Clone o projeto:
+```bash
+git clone https://github.com/seuusuario/ipcc-llm.git
+cd ipcc-llm
+```
 
-make eval-giskard
+Crie ambiente virtual:
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Linux/Mac
+.venv\Scripts\activate      # Windows
+```
 
-Saída: eval/reports/ipcc_raget_report.html.
+Instale dependências:
+```bash
+pip install -r requirements.txt
+```
 
-Arquitetura (LangGraph)
+---
 
-Supervisor → Retriever → Answerer (Ollama) → Self-check → Safety.
+## Configuração
 
-Citações: páginas no formato [p.X] + trechos listados.
+Copie o arquivo `.env.example` para `.env` e ajuste conforme necessário:
 
-Self-check: recusa se não houver citação ou evidência suficiente.
+```bash
+cp .env.example .env
+```
 
-Safety: adiciona disclaimer informativo.
+Exemplo de variáveis:
+```ini
+OLLAMA_MODEL=llama3.2:3b-instruct-q4_K_M
+EMBEDDINGS_MODEL=sentence-transformers/all-MiniLM-L6-v2
+INDEX_DIR=data/index
+PDF_PATH=data/corpus/IPCC_AR6_SYR_LongerReport.pdf
+```
 
-Avaliação (rubrica)
+---
 
-Conjunto de 25 perguntas em eval/ipcc_testset.jsonl (gerado automaticamente se ausente).
+## Execução
 
-Métricas (via Giskard/RAGAS): Context Precision, Context Recall.
+Para construir o índice:
+```bash
+make ingest
+```
 
-Latência: registrada por pergunta no texto do answer (suficiente para sumarizar no relatório).
+Para rodar a UI Streamlit:
+```bash
+streamlit run app/streamlit_app.py
+```
 
-Ética & Segurança
+---
 
-Conteúdo informativo baseado no IPCC AR6. Não substitui leitura/interpretação oficial.
+## Avaliação (em progresso)
+- **RAGAS**: métricas de *faithfulness* e *answer relevancy*.
+- **Giskard**: testes de robustez e relevância das respostas.
 
-Reprodutibilidade
+---
 
-requirements.txt, Dockerfile, Makefile, passos de ingestão.
+## Limitações
+- Projeto acadêmico de prova de conceito.
+- Conteúdo apenas **informativo**.  
+- Não substitui interpretações oficiais do IPCC.
 
-LLM local via Ollama configurável por .env (variável OLLAMA_MODEL).
+---
 
+## Licença
+Distribuído sob a licença MIT — veja [LICENSE](LICENSE).
 
-ifeq ($(OS),Windows_NT)
-VENV_PY := .venv\Scripts\python.exe
-else
-VENV_PY := .venv/bin/python
-endif
+---
 
-PYTHON := $(if $(wildcard $(VENV_PY)),$(VENV_PY),python)
+## Citação
+Se utilizar este projeto em trabalhos acadêmicos:
 
-.PHONY: setup ingest run eval eval-giskard
-
-setup:
-	$(PYTHON) -m venv .venv
-	$(PYTHON) -m pip install --upgrade pip
-	$(PYTHON) -m pip install -r requirements.txt
-
-ingest:
-	$(PYTHON) ingest/build_index.py --pdf data/corpus/IPCC_AR6_SYR_LongerReport.pdf --index-dir data/index
-
-run:
-	$(PYTHON) app/main.py
-
-eval:
-	$(PYTHON) eval/run_ragas.py
-
-eval-giskard:
-	$(PYTHON) eval/run_giskard.py
+```bibtex
+@software{clima_em_foco_2025,
+  author = {Elias de Melo, Rian Ismael},
+  title = {Clima em Foco – IPCC AR6 (SYR) Assistant with RAG + Agents},
+  year = {2025},
+  url = {https://github.com/Rian-Ismael/IPCC-LLM}
+}
+```
