@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "Se você usar este software, por favor cite da seguinte forma:"
-title: "Clima em Foco – IPCC AR6 (SYR) Assistant with RAG + Agents"
+message: "If you use this software, please cite it as follows:"
+title: "Climate in Focus – IPCC AR6 (SYR) Assistant with RAG + Agents"
 version: "1.0.0"
 date-released: 2025-09-15
 authors:

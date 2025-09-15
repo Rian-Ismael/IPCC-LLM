@@ -1,0 +1,31 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ipcc-llm-app
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    environment:
+      OLLAMA_HOST: "http://host.docker.internal:11434"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+  ingest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ipcc-llm-ingest
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    entrypoint: >
+      python -m ingest.build_index
+      --pdf ${PDF_PATH}
+      --index-dir ${INDEX_DIR}

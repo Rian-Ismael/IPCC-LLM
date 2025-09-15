@@ -12,3 +12,4 @@ psutil>=5.9
 langchain-ollama>=0.1.0
 numpy
 pandas
+langchain-huggingface>=0.1.0

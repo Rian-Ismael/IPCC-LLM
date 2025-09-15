@@ -1,60 +1,70 @@
-# Clima em Foco – IPCC AR6 (SYR)
+# Climate in Focus – IPCC AR6 (SYR)
 
-Assistente de perguntas e respostas baseado no **IPCC AR6 (SYR Longer Report)**, utilizando **RAG + agentes (LangChain + LangGraph)**.  
-O sistema recupera trechos do relatório oficial, gera respostas **com citações obrigatórias [p.X]** e aplica verificações anti-alucinação.
+Question-answering assistant based on the **IPCC AR6 (SYR Longer Report)**, built with **RAG + agents (LangChain + LangGraph)**.  
 
----
-
-## 🚀 Funcionalidades
-- **RAG (Retrieval-Augmented Generation)** com Chroma + embeddings OSS.
-- **Orquestração com agentes LangGraph**:
-  - Supervisor → roteia intenções.
-  - Retriever → busca trechos no índice vetorial.
-  - Answerer → gera respostas com citações obrigatórias.
-  - Self-check → recusa respostas sem evidência.
-  - Safety → adiciona disclaimers.
-- **UI em Streamlit** para perguntas (PT/EN).
-- **Citações com links diretos para o PDF oficial do IPCC.**
-- **Avaliação planejada com RAGAS e Giskard**.
+The system:
+- Retrieves passages from the official report.  
+- Generates answers **with mandatory citations in the format [p.X]**.  
+- Applies anti-hallucination checks (self-check).  
+- Displays answers in a Streamlit interface.  
 
 ---
 
-## ⚙️ Instalação
+## Features
 
-Pré-requisitos:
-- Python 3.10+
-- [Ollama](https://ollama.com/) instalado (para rodar modelos LLM open-weights).
-- Git + virtualenv.
+- **RAG (Retrieval-Augmented Generation)** with **Chroma** and open-source embeddings (HuggingFace).
+- **Agent orchestration with LangGraph**:
+  - **Supervisor** → routes intents (single domain = IPCC).
+  - **Retriever** → fetches passages from the vector index.
+  - **Answerer** → generates answers with mandatory citations.
+  - **Self-check** → rejects answers without supporting evidence.
+  - **Safety** → adds automatic disclaimers.
+- **Web UI in Streamlit** (PT/EN).
+- **Citations with direct links** to the official IPCC PDF.
+- **Planned evaluation** with **RAGAS** and **Giskard**.
 
-Clone o projeto:
+---
+
+## Local Installation
+
+Requirements:
+- Python 3.11+
+- [Ollama](https://ollama.com/) (for running local open-weight LLMs).  
+- Git and Make.
+
+Clone the repository:
+
 ```bash
-git clone https://github.com/seuusuario/ipcc-llm.git
+git clone https://github.com/youruser/ipcc-llm.git
 cd ipcc-llm
 ```
 
-Crie ambiente virtual:
+Create a virtual environment:
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate   # Linux/Mac
 .venv\Scripts\activate      # Windows
 ```
 
-Instale dependências:
+Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ---
 
-## Configuração
+## Configuration
 
-Copie o arquivo `.env.example` para `.env` e ajuste conforme necessário:
+Create your `.env` file based on the provided example:
 
 ```bash
 cp .env.example .env
 ```
 
-Exemplo de variáveis:
+Example:
+
 ```ini
 OLLAMA_MODEL=llama3.2:3b-instruct-q4_K_M
 EMBEDDINGS_MODEL=sentence-transformers/all-MiniLM-L6-v2
@@ -64,45 +74,87 @@ PDF_PATH=data/corpus/IPCC_AR6_SYR_LongerReport.pdf
 
 ---
 
-## Execução
+## Indexing
 
-Para construir o índice:
+Before running the interface, index the report:
+
 ```bash
 make ingest
 ```
 
-Para rodar a UI Streamlit:
+This builds the vector database in `data/index/`.
+
+---
+
+## Running the UI (local)
+
+```bash
+make run
+```
+
+or directly:
+
 ```bash
 streamlit run app/streamlit_app.py
 ```
 
----
-
-## Avaliação (em progresso)
-- **RAGAS**: métricas de *faithfulness* e *answer relevancy*.
-- **Giskard**: testes de robustez e relevância das respostas.
+Access at [http://localhost:8501](http://localhost:8501).
 
 ---
 
-## Limitações
-- Projeto acadêmico de prova de conceito.
-- Conteúdo apenas **informativo**.  
-- Não substitui interpretações oficiais do IPCC.
+## Running with Docker + Compose
+
+Build the image and start via Docker Compose:
+
+```bash
+make build
+make up-d
+```
+
+Logs:
+
+```bash
+make logs
+```
+
+Stop:
+
+```bash
+make down
+```
 
 ---
 
-## Licença
-Distribuído sob a licença MIT — veja [LICENSE](LICENSE).
+## Evaluation (in progress)
+
+- **RAGAS** → metrics for *faithfulness* and *answer relevancy*.  
+- **Giskard** → robustness and quality testing.  
+- A curated set of ~20 manually annotated questions is in progress.
 
 ---
 
-## Citação
-Se utilizar este projeto em trabalhos acadêmicos:
+## Limitations
+
+- Academic **proof of concept** project.  
+- Answers are **informational only** → do not replace official IPCC interpretations.  
+- Small LLMs may occasionally return **empty outputs**.
+
+---
+
+## License
+
+Distributed under the MIT License — see [LICENSE](LICENSE).
+
+---
+
+## Citation
+
+If you use this project in academic work:
 
 ```bibtex
-@software{clima_em_foco_2025,
+@software{climate_in_focus_2025,
   author = {Elias de Melo, Rian Ismael},
-  title = {Clima em Foco – IPCC AR6 (SYR) Assistant with RAG + Agents},
+  title = {Climate in Focus – IPCC AR6 (SYR) Assistant with RAG + Agents},
   year = {2025},
   url = {https://github.com/Rian-Ismael/IPCC-LLM}
 }
