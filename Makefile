@@ -1,21 +1,3 @@
-# Use:
-#   Local (sem Docker):
-#     make venv           # cria .venv
-#     make install        # instala deps no .venv
-#     make ingest         # gera índice vetorial
-#     make run            # inicia Streamlit local
-#     make eval           # roda RAGAS local
-#     make eval-giskard   # roda integração Giskard local
-#
-#   Docker / Compose:
-#     make build          # build das imagens
-#     make ingest-docker  # ingestão dentro de um container one-off
-#     make up-d           # sobe app em segundo plano
-#     make logs           # logs do app
-#     make down           # derruba os services
-#     make eval-docker    # RAGAS dentro do container
-#     make sh             # shell dentro do container do app
-
 .PHONY: help venv install ingest run eval eval-giskard \
         build up up-d down logs ps sh ingest-docker eval-docker eval-giskard-docker \
         restart clean-index clean-venv clean-docker
@@ -56,7 +38,7 @@ help:
 	@echo "Limpeza:"
 	@echo "  make clean-index     - apaga $(INDEX_DIR)"
 	@echo "  make clean-venv      - apaga .venv"
-	@echo "  make clean-docker    - remove imagens/volumes parados (cuidado)"
+	@echo "  make clean-docker    - remove imagens/volumes parados"
 	@echo ""
 
 # Local 
