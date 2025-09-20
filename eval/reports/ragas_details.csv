@@ -1,4 +1,3 @@
-question,contexts_count,latency_s
-What are the main drivers of recent global warming?,4,17.4486346244812
-Projected warming under SSP2-4.5 by 2100?,4,7.11988091468811
-Key risks for coastal regions in near-term?,4,13.205257415771484
+question,contexts_count,latency_s,answer_relevancy,faithfulness,context_precision,context_recall
+What are the main drivers of recent global warming?,4,59.040043354034424,-0.007468027740996751,0.6,0.25,1.0
+Projected warming under SSP2-4.5 by 2100?,4,20.15523886680603,-0.008052583691689954,0.0,0.0,0.0
