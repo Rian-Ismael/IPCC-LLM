@@ -8,25 +8,25 @@ from dotenv import load_dotenv
 load_dotenv()
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct")
 
-# modelo fraco: temperatura baixa p/ obedecer formato e não "viajar"
-llm = ChatOllama(model=OLLAMA_MODEL, temperature=0.1)
+# modelo fraco → temp baixa pra reduzir alucinação, mas sem engessar formato
+llm = ChatOllama(model=OLLAMA_MODEL, temperature=0.2)
 
 SYSTEM_PROMPT = """Use ONLY the provided excerpts from the IPCC AR6 Synthesis Report – Longer Report.
 
 Rules (strict):
-- English; keep IPCC terms. No external knowledge.
-- Reproduce numbers/units/scenario labels exactly as shown.
-- Mention scenarios/time windows/qualifiers ONLY if present in excerpts.
-- Every factual sentence MUST end with a page citation like [p.X].
-  If multiple excerpts support it, append multiple citations separately: [p.X][p.Y].
-  Use ONLY pages present in the excerpts for that sentence.
-- If excerpts are insufficient, answer EXACTLY:
+- English; keep IPCC terminology. No external knowledge.
+- Reproduce numbers, units, ranges, scenario labels (e.g., SSP1-2.6) and confidence terms EXACTLY as written.
+- Mention scenarios, time windows, regions or qualifiers ONLY if they appear in the excerpts.
+- Every factual sentence MUST end with a page citation like [p.X]. If multiple excerpts support a sentence, you may add multiple citations like [p.X][p.Y].
+- Use ONLY page numbers that appear in the provided excerpts.
+- When multiple provided excerpts add directly relevant quantified details, include them as additional bullet points (up to ~6), each with its own [p.X].
+- If the excerpts are insufficient to answer, reply EXACTLY:
 I have not found sufficient evidence in the IPCC to answer with confidence.
-- Do NOT output the sentence above if you wrote any sentence with [p.X].
-- Keep it compact: 1–5 bullets OR 2–3 short sentences.
+- Prefer clarity and completeness when the excerpts justify it; do not omit supported details.
+
 """
 
-# normalização de citações → [p.X]
+# Normalização de variações de citação → [p.X]
 _CIT_PATTS = [
     (re.compile(r"\(p\.\s*\[(\d+)\]\)", re.I), r"[p.\1]"),
     (re.compile(r"p\.\s*\[(\d+)\]", re.I), r"[p.\1]"),
@@ -34,20 +34,14 @@ _CIT_PATTS = [
     (re.compile(r"\[p\s*\.?\s*(\d+)\]", re.I), r"[p.\1]"),
     (re.compile(r"\[pg\.?\s*(\d+)\]", re.I), r"[p.\1]"),
 ]
-_CIT_FINDER = re.compile(r"\[p\.(\d+)\]")  # páginas citadas no corpo
 
 def _normalize_citations(txt: str) -> str:
     for patt, rep in _CIT_PATTS:
         txt = patt.sub(rep, txt)
-    # deduplica citações consecutivas idênticas: [p.37][p.37] -> [p.37]
-    txt = re.sub(r'(\[p\.\d+\])(?:\1)+', r'\1', txt)
     return txt
 
-def _pages_used_in(text: str) -> list[int]:
-    pages = [int(m.group(1)) for m in _CIT_FINDER.finditer(text)]
-    return sorted(set(pages))
-
 def _build_context(ctxs: List[Dict]) -> str:
+    """Formata os excertos recuperados como contexto, um por parágrafo, prefixados com [p.X]."""
     if not ctxs:
         return "(no retrieved excerpts)"
     lines = []
@@ -55,13 +49,22 @@ def _build_context(ctxs: List[Dict]) -> str:
         m = c.get("metadata", {}) or {}
         page = m.get("page", "?")
         text = (c.get("text") or "").strip().replace("\n", " ")
-        if len(text) > 700:
+        if len(text) > 700:  # só para não explodir o prompt
             text = text[:700] + "…"
         lines.append(f"[p.{page}] {text}")
     return "\n\n".join(lines)
 
-def _format_citations_links(pages: list[int]) -> str:
+def format_citations(ctxs: List[Dict]) -> str:
+    """Lista TODAS as páginas dos contextos, como links para o PDF oficial."""
     base = "https://www.ipcc.ch/report/ar6/syr/downloads/report/IPCC_AR6_SYR_LongerReport.pdf#page="
+    pages: list[int] = []
+    for c in ctxs:
+        p = (c.get("metadata") or {}).get("page", None)
+        try:
+            pages.append(int(p))
+        except (TypeError, ValueError):
+            continue
+    pages = sorted(set(pages))
     return " ".join(f"[p.{p}]({base}{p})" for p in pages) if pages else "[p.?]"
 
 def _extract_text(raw) -> str:
@@ -81,7 +84,7 @@ def _extract_text(raw) -> str:
 FALLBACK = "I have not found sufficient evidence in the IPCC to answer with confidence."
 
 def answer(query: str, ctxs: List[Dict]) -> Dict:
-    # fallback se não há contexto
+    # Sem contexto → recusa limpa
     if not ctxs:
         refuse = f"{FALLBACK}\n\nCitations: [p.?]"
         return {"answer": refuse, "contexts": []}
@@ -92,31 +95,19 @@ def answer(query: str, ctxs: List[Dict]) -> Dict:
         f"{query}\n\n"
         "IPCC excerpts (use ONLY what is below):\n"
         f"{context_text}\n\n"
-        "Remember: put [p.X] (or multiple like [p.X][p.Y]) at the END of each factual sentence."
+        "Remember: end EACH factual sentence with [p.X] (or multiple like [p.X][p.Y])."
     )
-
     msg = [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=user)]
+
     raw = llm.invoke(msg)
     response_text = _extract_text(raw).strip()
     if not response_text:
         raw = llm.invoke(msg)
         response_text = _extract_text(raw).strip()
 
-    # normaliza e deduplica citações
+    # normaliza as citações para [p.X]
     response_text = _normalize_citations(response_text)
 
-    # páginas permitidas (vindas dos contextos)
-    allowed_pages = sorted({
-        int(c.get("metadata", {}).get("page"))
-        for c in ctxs
-        if str(c.get("metadata", {}).get("page", "")).isdigit()
-    })
-
-    # páginas realmente citadas no corpo, filtradas pelas permitidas
-    used_pages = [p for p in _pages_used_in(response_text) if p in allowed_pages]
-    if not used_pages:
-        # se o modelo não citou nada no corpo, use páginas dos contextos como fallback de rodapé
-        used_pages = allowed_pages
-
-    response_text += "\n\nCitations: " + _format_citations_links(used_pages)
+    # Rodapé: TODAS as páginas dos contextos (sem limitar)
+    response_text += "\n\nCitations: " + format_citations(ctxs)
     return {"answer": response_text, "contexts": ctxs}
