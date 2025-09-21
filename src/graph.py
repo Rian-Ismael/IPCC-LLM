@@ -1,3 +1,4 @@
+# src/graph.py
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Dict
 
@@ -22,21 +23,20 @@ def build_graph():
         return s
 
     def node_retrieve(s: State):
-        s["contexts"] = retrieve(s["query"]) 
+        s["contexts"] = retrieve(s["query"])
         return s
 
     def node_answer(s: State):
-        s["answer"] = answer(s["query"], s["contexts"]) 
+        s["answer"] = answer(s["query"], s["contexts"])
         return s
 
     def node_selfcheck(s: State):
-        check = self_check(s["answer"])
-        if not check["ok"]:
-            s["answer"] = {"answer": "Não encontrei evidência suficiente no IPCC para responder com segurança.", "contexts": s.get("contexts", [])}
+        # ✅ NOVO: self_check já normaliza e devolve {"answer": ..., "contexts": ...}
+        s["answer"] = self_check(s["answer"])
         return s
 
     def node_safety(s: State):
-        s["answer"] = apply_safety(s["answer"]) 
+        s["answer"] = apply_safety(s["answer"])
         return s
 
     g.add_node("supervisor", node_supervisor)

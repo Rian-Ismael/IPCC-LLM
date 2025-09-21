@@ -1,6 +1,6 @@
 metric,value
 answer_relevancy,-0.0078
-faithfulness,0.3000
-context_precision,0.1250
+faithfulness,0.6250
+context_precision,0.1000
 context_recall,0.5000
-latency_avg_s,39.5976
+latency_avg_s,34.7554
