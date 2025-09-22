@@ -1,23 +1,20 @@
-{"question": "What are the main drivers of recent global warming?", "gold_page": 8}
-{"question": "Projected warming under SSP2-4.5 by 2100?", "gold_page": 28}
-{"question": "Key risks for coastal regions in near-term?", "gold_page": 40}
-{"question": "When is the best estimate for reaching 1.5°C of global warming?", "gold_page": 34}
-{"question": "In the very low GHG scenario (SSP1-1.9), when do CO2 emissions reach net zero?", "gold_page": 34}
-{"question": "What is the remaining carbon budget for limiting warming to 1.5°C with a 50% likelihood from the beginning of 2020?", "gold_page": 48}
-{"question": "What was the global surface temperature increase in 2011–2020 relative to 1850–1900?", "gold_page": 8}
-{"question": "How does this report define 'losses and damages'?", "gold_page": 8}
-{"question": "At 4°C warming and above, what risks are projected for natural and human systems?", "gold_page": 37}
-{"question": "Beyond 4°C of warming, what share of tropical marine species is projected to face local extinction?", "gold_page": 37}
-{"question": "Beyond 4°C of warming, what share of global land area is projected to undergo biome shifts?", "gold_page": 37}
-{"question": "Do the projected risks shown in Figure 3.2 assume additional adaptation?", "gold_page": 40}
-{"question": "What are the near‑term best estimates and very likely ranges of global warming for SSP5‑8.5?", "gold_page": 58}
-{"question": "What are the near‑term best estimates and very likely ranges of global warming for SSP1‑1.9?", "gold_page": 58}
-{"question": "What has happened to ocean heat content since the 1970s?", "gold_page": 13}
-{"question": "Do projected adverse impacts and related losses and damages escalate with every increment of global warming?", "gold_page": 38}
-{"question": "Do development pathways with higher demand for food and water lead to higher risks from water scarcity in drylands?", "gold_page": 38}
-{"question": "What does overshoot of a warming level imply for impacts and risks compared to staying below that level?", "gold_page": 53}
-{"question": "After a temperature overshoot, what is required to bring global warming back down to a given level?", "gold_page": 53}
-{"question": "Are the co‑benefits of deep mitigation larger than its economic costs in many regions and sectors?", "gold_page": 54}
-{"question": "By 2100, what very likely range of warming is implied by policies implemented by the end of 2020?", "gold_page": 23}
-{"question": "Have hot extremes become more frequent and intense in most land regions since the 1950s?", "gold_page": 12}
-{"question": "Has global mean sea level risen since 1970?", "gold_page": 13}
+{"question":"What are the main drivers of recent global warming?","gold_page":8}
+{"question":"Projected warming under SSP2-4.5 by 2100?","gold_page":31}
+{"question":"Key risks for coastal regions in near-term?","gold_page":42}
+{"question":"When is the best estimate for reaching 1.5°C of global warming?","gold_page":4}
+{"question":"In the very low GHG scenario (SSP1-1.9), when do CO2 emissions reach net zero?","gold_page":34}
+{"question":"What is the remaining carbon budget for limiting warming to 1.5°C with a 50% likelihood from the beginning of 2020?","gold_page":48}
+{"question":"What was the global surface temperature increase in 2011–2020 relative to 1850–1900?","gold_page":8}
+{"question":"How does this report define 'losses and damages'?","gold_page":8}
+{"question":"At 4°C warming and above, what risks are projected for natural and human systems?","gold_page":37}
+{"question":"Beyond 4°C of warming, what share of tropical marine species is projected to face local extinction?","gold_page":37}
+{"question":"Beyond 4°C of warming, what share of global land area is projected to undergo biome shifts?","gold_page":37}
+{"question":"Do the projected risks shown in Figure 3.2 assume additional adaptation?","gold_page":40}
+{"question":"What are the near-term best estimates and very likely ranges of global warming for SSP5-8.5?","gold_page":34}
+{"question":"What are the near-term best estimates and very likely ranges of global warming for SSP1-1.9?","gold_page":34}
+{"question":"What has happened to ocean heat content since the 1970s?","gold_page":13}
+{"question":"Do projected adverse impacts and related losses and damages escalate with every increment of global warming?","gold_page":38}
+{"question":"What does overshoot of a warming level imply for impacts and risks compared to staying below that level?","gold_page":53}
+{"question":"After a temperature overshoot, what is required to bring global warming back down to a given level?","gold_page":53}
+{"question":"Are the co-benefits of deep mitigation larger than its economic costs in many regions and sectors?","gold_page":54}
+{"question":"By 2100, what very likely range of warming is implied by policies implemented by the end of 2020?","gold_page":23}

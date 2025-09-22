@@ -1,24 +1,21 @@
-question,contexts_count,latency_s,answer_relevancy,faithfulness,context_precision,context_recall
-What are the main drivers of recent global warming?,5,45.165451526641846,-0.007468027740996751,1.0,0.2,1.0
-Projected warming under SSP2-4.5 by 2100?,5,21.177470207214355,-0.008052583691689954,1.0,0.0,0.0
-Key risks for coastal regions in near-term?,5,70.78878474235535,0.050851202750028156,0.75,0.0,0.0
-When is the best estimate for reaching 1.5°C of global warming?,5,39.457464933395386,-0.04759394319580382,0.8,0.2,1.0
-"In the very low GHG scenario (SSP1-1.9), when do CO2 emissions reach net zero?",5,22.605244159698486,-0.07165953140956173,0.3333333333333333,0.2,1.0
-What is the remaining carbon budget for limiting warming to 1.5°C with a 50% likelihood from the beginning of 2020?,5,27.101176738739014,0.010142120819601154,1.0,0.2,1.0
-What was the global surface temperature increase in 2011–2020 relative to 1850–1900?,5,20.542819499969482,0.022321557045074845,0.8571428571428571,0.2,1.0
-How does this report define 'losses and damages'?,5,33.553651332855225,-0.004690152463183085,0.0,0.2,1.0
-"At 4°C warming and above, what risks are projected for natural and human systems?",5,57.33568334579468,-0.04753225380493435,1.0,0.2,1.0
-"Beyond 4°C of warming, what share of tropical marine species is projected to face local extinction?",5,18.972514390945435,-0.02008711108301973,0.1111111111111111,0.2,1.0
-"Beyond 4°C of warming, what share of global land area is projected to undergo biome shifts?",5,20.382861137390137,0.0017001460147370053,0.8,0.2,1.0
-Do the projected risks shown in Figure 3.2 assume additional adaptation?,5,13.529206991195679,-0.024221585672847434,0.0,0.0,0.0
-What are the near‑term best estimates and very likely ranges of global warming for SSP5‑8.5?,5,17.861687421798706,-0.02431024980079365,0.8,0.2,1.0
-What are the near‑term best estimates and very likely ranges of global warming for SSP1‑1.9?,5,27.584120512008667,-0.0278807374669692,0.6666666666666666,0.2,1.0
-What has happened to ocean heat content since the 1970s?,5,16.6056706905365,-0.023614096656508522,0.5,0.2,1.0
-Do projected adverse impacts and related losses and damages escalate with every increment of global warming?,5,37.91694188117981,-0.07269488677006626,1.0,0.2,1.0
-Do development pathways with higher demand for food and water lead to higher risks from water scarcity in drylands?,5,23.776320695877075,0.010445299317362999,0.4,0.2,1.0
-What does overshoot of a warming level imply for impacts and risks compared to staying below that level?,5,23.070362091064453,-0.052888911920296544,0.2857142857142857,0.2,1.0
-"After a temperature overshoot, what is required to bring global warming back down to a given level?",5,47.20810604095459,-0.028131540501007888,1.0,0.2,1.0
-Are the co‑benefits of deep mitigation larger than its economic costs in many regions and sectors?,5,15.079807758331299,-0.03440725481904584,1.0,0.2,1.0
-"By 2100, what very likely range of warming is implied by policies implemented by the end of 2020?",5,19.93931007385254,-0.01236117202812559,0.0,0.2,1.0
-Have hot extremes become more frequent and intense in most land regions since the 1950s?,5,20.46257185935974,0.04296225130606385,,0.2,1.0
-Has global mean sea level risen since 1970?,5,47.82898712158203,0.06888052006739151,0.8,0.0,0.0
+question,contexts_count,latency_s,answer_relevancy,faithfulness,faithfulness_source,context_precision,context_recall
+What are the main drivers of recent global warming?,4,63.81077170372009,0.0,0.8,proxy,0.25,1.0
+Projected warming under SSP2-4.5 by 2100?,4,37.56199550628662,0.0,0.75,proxy,0.25,1.0
+Key risks for coastal regions in near-term?,4,88.0483386516571,0.8897968454912362,0.7777777777777778,proxy,0.0,0.0
+When is the best estimate for reaching 1.5°C of global warming?,4,38.30764603614807,0.0,0.6,proxy,0.0,0.0
+"In the very low GHG scenario (SSP1-1.9), when do CO2 emissions reach net zero?",4,28.24229073524475,0.0,0.5,proxy,0.25,1.0
+What is the remaining carbon budget for limiting warming to 1.5°C with a 50% likelihood from the beginning of 2020?,4,42.27378249168396,0.9419424310887333,0.8,proxy,0.25,1.0
+What was the global surface temperature increase in 2011–2020 relative to 1850–1900?,4,50.77691841125488,0.8911295104821745,0.6,proxy,0.25,1.0
+How does this report define 'losses and damages'?,4,56.35635852813721,0.0,1.0,proxy,0.25,1.0
+"At 4°C warming and above, what risks are projected for natural and human systems?",4,92.06063342094421,0.7582170631438342,0.75,proxy,0.25,1.0
+"Beyond 4°C of warming, what share of tropical marine species is projected to face local extinction?",4,28.443175554275513,0.0,0.5,proxy,0.25,1.0
+"Beyond 4°C of warming, what share of global land area is projected to undergo biome shifts?",4,27.65333580970764,0.0,0.75,proxy,0.25,1.0
+Do the projected risks shown in Figure 3.2 assume additional adaptation?,4,20.316089630126953,0.0,0.6666666666666666,proxy,0.25,1.0
+What are the near-term best estimates and very likely ranges of global warming for SSP5-8.5?,4,27.817866802215576,0.8190958098426379,0.3333333333333333,proxy,0.25,1.0
+What are the near-term best estimates and very likely ranges of global warming for SSP1-1.9?,4,42.212329149246216,0.9171137592305497,0.6,proxy,0.25,1.0
+What has happened to ocean heat content since the 1970s?,4,39.638843059539795,0.71453703624488,0.8,proxy,0.25,1.0
+Do projected adverse impacts and related losses and damages escalate with every increment of global warming?,4,41.31213045120239,0.0,0.8333333333333334,proxy,0.25,1.0
+What does overshoot of a warming level imply for impacts and risks compared to staying below that level?,4,92.42608213424683,0.0,0.875,proxy,0.25,1.0
+"After a temperature overshoot, what is required to bring global warming back down to a given level?",4,91.07156252861023,0.8227212369518538,0.875,proxy,0.25,1.0
+Are the co-benefits of deep mitigation larger than its economic costs in many regions and sectors?,4,19.672871589660645,0.0,0.6666666666666666,proxy,0.0,0.0
+"By 2100, what very likely range of warming is implied by policies implemented by the end of 2020?",4,31.277069330215454,0.0,0.75,proxy,0.25,1.0

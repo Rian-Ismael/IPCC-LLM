@@ -1,7 +1,6 @@
 from typing import Dict
 import re
 
-# Checa citações inline [p.X]
 RE_CIT = re.compile(r"\[p\.?\s*\d+\]", re.I)
 FALLBACK = "I have not found sufficient evidence in the IPCC to answer with confidence."
 

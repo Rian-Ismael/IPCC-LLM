@@ -31,7 +31,6 @@ def build_graph():
         return s
 
     def node_selfcheck(s: State):
-        # ✅ NOVO: self_check já normaliza e devolve {"answer": ..., "contexts": ...}
         s["answer"] = self_check(s["answer"])
         return s
 
