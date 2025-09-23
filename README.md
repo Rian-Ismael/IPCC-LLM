@@ -35,7 +35,7 @@ Requirements:
 Clone the repository:
 
 ```bash
-git clone https://github.com/youruser/ipcc-llm.git
+git clone https://github.com/Rian-Ismael/IPCC-LLM.git
 cd ipcc-llm
 ```
 
