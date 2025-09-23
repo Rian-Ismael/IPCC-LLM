@@ -1,4 +1,3 @@
-# ingest/build_index.py
 import argparse, os
 from dotenv import load_dotenv
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -13,11 +12,9 @@ DEFAULT_EMB = os.getenv("EMBEDDINGS_MODEL", "sentence-transformers/all-MiniLM-L6
 def main(pdf_path: str, index_dir: str):
     os.makedirs(index_dir, exist_ok=True)
 
-    # 1) carrega páginas (já normalizadas no loader)
-    docs = load_pdf_with_metadata(pdf_path)  # [{text, page}, ...]
+    docs = load_pdf_with_metadata(pdf_path)
     num_pages = len(docs)
 
-    # 2) chunking
     splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=150)
     chunks = []
     for d in docs:
@@ -25,16 +22,14 @@ def main(pdf_path: str, index_dir: str):
         for c in parts:
             c = (c or "").strip()
             if not c:
-                continue  # evita chunk vazio
+                continue
             chunks.append({
                 "text": c,
                 "metadata": {"page": d["page"]},
             })
 
-    # 3) embedders
     emb = SentenceTransformer(DEFAULT_EMB)
 
-    # 4) Chroma persistente em COSINE (drop para garantir métrica)
     client = PersistentClient(path=index_dir)
     try:
         client.delete_collection("ipcc")

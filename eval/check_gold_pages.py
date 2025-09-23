@@ -15,17 +15,17 @@ def load_index_df(index_dir: str) -> pd.DataFrame:
     try:
         coll = db.get_collection("ipcc")
     except Exception:
-        raise SystemExit(f"❌ Collection 'ipcc' not found in {index_dir}. Rode a ingestão primeiro.")
+        raise SystemExit(f"Collection 'ipcc' not found in {index_dir}. Rode a ingestão primeiro.")
     dump = coll.get(include=["documents", "metadatas"])
     docs, metas = dump["documents"], dump["metadatas"]
     if not docs:
-        raise SystemExit(f"❌ Índice vazio em {index_dir}. Rode a ingestão.")
+        raise SystemExit(f"Índice vazio em {index_dir}. Rode a ingestão.")
     df = pd.DataFrame([{"text": t or "", "page": str(m.get("page","?"))} for t,m in zip(docs, metas)])
     return df
 
 def load_eval_items(eval_path: Path) -> List[dict]:
     if not eval_path.exists():
-        raise SystemExit("❌ Falta eval/eval_set.jsonl")
+        raise SystemExit("Falta eval/eval_set.jsonl")
     items, bad = [], []
     with eval_path.open("r", encoding="utf-8-sig") as f:
         for lineno, raw in enumerate(f, start=1):
@@ -54,7 +54,7 @@ def load_eval_items(eval_path: Path) -> List[dict]:
         print("\n[WARN] Algumas linhas foram ignoradas:")
         for ln, msg in bad: print(f"  linha {ln}: {msg}")
     if not items:
-        raise SystemExit("❌ eval_set.jsonl inválido (nenhuma entrada válida)")
+        raise SystemExit("eval_set.jsonl inválido (nenhuma entrada válida)")
     return items
 
 def find_pages(df: pd.DataFrame, substr: str, top=8) -> List[str]:

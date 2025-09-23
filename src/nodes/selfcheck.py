@@ -10,14 +10,6 @@ def _strip_fallback(txt: str) -> str:
     return out
 
 def self_check(ans: Dict) -> Dict:
-    """
-    Tabela-verdade:
-      1) Conteúdo com [p.X] + recusa  → remove recusa, mantém conteúdo.
-      2) Só recusa (sem [p.X])        → mantém recusa limpa.
-      3) Conteúdo sem [p.X]           → substitui por recusa limpa.
-      4) Conteúdo com [p.X] (sem recusa) → passa.
-    Retorna sempre {"answer": ..., "contexts": ...}
-    """
     txt = (ans or {}).get("answer", "") or ""
     ctxs = (ans or {}).get("contexts", []) or []
 

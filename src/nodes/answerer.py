@@ -9,7 +9,7 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct")
 
 llm = ChatOllama(
     model=OLLAMA_MODEL,
-    temperature=0,
+    temperature=0.0,
     num_ctx=2048,
     num_predict=256,
     keep_alive="30m",
@@ -17,18 +17,18 @@ llm = ChatOllama(
 
 FALLBACK = "I have not found sufficient evidence in the IPCC to answer with confidence."
 
-SYSTEM_PROMPT = """Use ONLY the provided excerpts from the IPCC AR6 Synthesis Report – Longer Report.
+SYSTEM_PROMPT = """Answer using ONLY the provided excerpts from the IPCC AR6 Synthesis Report – Longer Report (SYR).
 
-Rules (strict):
-- English; keep IPCC terminology. No external knowledge.
-- Reproduce numbers, units, ranges, scenario labels (e.g., SSP1-2.6) and confidence terms EXACTLY as written.
-- Mention scenarios, time windows, regions or qualifiers ONLY if they appear in the excerpts.
-- Every factual sentence MUST end with a page citation like [p.X]. If multiple excerpts support a sentence, you may add multiple citations like [p.X][p.Y].
-- Use ONLY page numbers that appear in the provided excerpts.
-- When multiple provided excerpts add directly relevant quantified details, include them as additional bullet points (up to ~6), each with its own [p.X].
+Strict rules:
+- English only. Keep IPCC terminology. No external knowledge.
+- Reproduce numbers, units, ranges, scenario labels (e.g., SSP1-2.6) and calibrated confidence terms EXACTLY.
+- Mention scenarios/regions/time windows ONLY if present in the excerpts.
+- EVERY factual sentence MUST end with a page citation like [p.X]. If multiple excerpts support it, chain them [p.X][p.Y].
+- Use ONLY page numbers that appear in the excerpts.
+- DO NOT copy figure/table captions or section headers (e.g., “Figure 3.2”, “Table 2.1”, “Section 3”, “Cross-Section Box.2”). If a sentence would include them, rewrite to describe the content plainly.
+- Be concise: short paragraphs or bullets when helpful. Synthesize across excerpts instead of pasting them.
 - If the excerpts are insufficient to answer, reply EXACTLY:
 I have not found sufficient evidence in the IPCC to answer with confidence.
-- Prefer clarity and completeness when the excerpts justify it; do not omit supported details.
 """
 
 _STOPWORDS = {

@@ -18,9 +18,9 @@ UNIQ_BY_PAGE = os.getenv("RETRIEVER_UNIQUE_PAGES", "1") == "1"
 RERANK_ENABLE = os.getenv("RERANK_ENABLE", "1") == "1"
 RERANK_MODEL = os.getenv("RERANK_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
 RERANK_TOP_K = int(os.getenv("RERANK_TOP_K", str(max(K * 3, 12))))
-RERANK_ALPHA = float(os.getenv("RERANK_ALPHA", "0.7"))  # mistura CE (alpha) x vetorial (1-alpha)
+RERANK_ALPHA = float(os.getenv("RERANK_ALPHA", "0.7"))
 
-_RERANKER = None  # cache global
+_RERANKER = None 
 
 
 def _get_reranker():
@@ -58,7 +58,7 @@ def _apply_rerank(query_text: str, cands: List[Dict[str, Any]]) -> List[Dict[str
     """Reranqueia top-N com CrossEncoder e mistura com score vetorial."""
     reranker = _get_reranker()
     if reranker is None or not cands:
-        return cands  # sem CE → mantém ordem vetorial
+        return cands 
 
     pool = sorted(cands, key=lambda x: x.get("vector_score", 0.0), reverse=True)[:RERANK_TOP_K]
     pairs = [(query_text, d["text"]) for d in pool]
@@ -71,7 +71,7 @@ def _apply_rerank(query_text: str, cands: List[Dict[str, Any]]) -> List[Dict[str
 
     out = []
     for item, ce_raw in zip(pool, scores):
-        ce_norm = _sigmoid(float(ce_raw))              # normaliza CE para ~[0,1]
+        ce_norm = _sigmoid(float(ce_raw))             
         vec = float(item.get("vector_score", 0.0))
         final = RERANK_ALPHA * ce_norm + (1.0 - RERANK_ALPHA) * vec
 
