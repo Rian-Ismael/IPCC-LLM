@@ -1,4 +1,8 @@
 metric,value
-faithfulness,nan
-answer_relevancy,nan
-latency_avg_s,12.5913
+answer_relevancy,0.3377
+faithfulness,0.7114
+context_precision,0.2125
+context_recall,0.8500
+latency_avg_s,47.9640
+memory_peak_mb,302.5
+cpu_percent_avg,46.1

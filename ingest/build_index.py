@@ -1,4 +1,3 @@
-# ingest/build_index.py
 import argparse, os
 from dotenv import load_dotenv
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -13,38 +12,44 @@ DEFAULT_EMB = os.getenv("EMBEDDINGS_MODEL", "sentence-transformers/all-MiniLM-L6
 def main(pdf_path: str, index_dir: str):
     os.makedirs(index_dir, exist_ok=True)
 
-    # 1) Carrega o PDF em páginas
-    docs = load_pdf_with_metadata(pdf_path)  # [{text, page}, ...]
+    docs = load_pdf_with_metadata(pdf_path)
+    num_pages = len(docs)
 
-    # 2) Splitter
     splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=150)
-
     chunks = []
     for d in docs:
-        for c in splitter.split_text(d["text"]):
+        parts = splitter.split_text(d["text"])
+        for c in parts:
+            c = (c or "").strip()
+            if not c:
+                continue
             chunks.append({
                 "text": c,
-                "metadata": {"page": d["page"], "section": d.get("section", "")},
+                "metadata": {"page": d["page"]},
             })
 
-    # 3) Embeddings
     emb = SentenceTransformer(DEFAULT_EMB)
 
-    # 4) Chroma (persistente)
     client = PersistentClient(path=index_dir)
-    coll = client.get_or_create_collection(name="ipcc")
+    try:
+        client.delete_collection("ipcc")
+    except Exception:
+        pass
 
-    # 5) Adiciona documentos
-    ids, texts, metas = [], [], []
-    for i, ch in enumerate(chunks):
-        ids.append(f"ipcc-{i}")
-        texts.append(ch["text"])
-        metas.append(ch["metadata"])
+    coll = client.get_or_create_collection(
+        name="ipcc",
+        metadata={"hnsw:space": "cosine"}  # ESSENCIAL
+    )
+
+    # 5) adiciona
+    ids = [f"ipcc-{i}" for i in range(len(chunks))]
+    texts = [ch["text"] for ch in chunks]
+    metas = [ch["metadata"] for ch in chunks]
 
     vecs = emb.encode(texts, convert_to_numpy=True).tolist()
     coll.add(ids=ids, documents=texts, metadatas=metas, embeddings=vecs)
 
-    print(f"Indexed {len(texts)} chunks → {index_dir}")
+    print(f"Indexed {len(texts)} chunks from {num_pages} pages → {index_dir}")
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()

@@ -63,15 +63,6 @@ Create your `.env` file based on the provided example:
 cp .env.example .env
 ```
 
-Example:
-
-```ini
-OLLAMA_MODEL=llama3.2:3b-instruct-q4_K_M
-EMBEDDINGS_MODEL=sentence-transformers/all-MiniLM-L6-v2
-INDEX_DIR=data/index
-PDF_PATH=data/corpus/IPCC_AR6_SYR_LongerReport.pdf
-```
-
 ---
 
 ## Indexing

@@ -7,6 +7,7 @@ PY ?= python
 PDF_PATH ?= data/corpus/IPCC_AR6_SYR_LongerReport.pdf
 INDEX_DIR ?= data/index
 
+
 # Variáveis Docker/Compose 
 COMPOSE ?= docker compose
 APP_SERVICE ?= app
@@ -40,8 +41,7 @@ help:
 	@echo "  make clean-venv      - apaga .venv"
 	@echo "  make clean-docker    - remove imagens/volumes parados"
 	@echo ""
-
-# Local 
+ 
 venv:
 	$(PY) -m venv .venv
 
@@ -95,12 +95,12 @@ down:
 restart:
 	$(COMPOSE) restart $(APP_SERVICE)
 
-# Limpeza
-clean-index:
-	-$(PY) -c "import shutil, os; shutil.rmtree(os.environ.get('INDEX_DIR', '$(INDEX_DIR)'), ignore_errors=True)"
-
 clean-venv:
 	-$(PY) -c "import shutil; shutil.rmtree('.venv', ignore_errors=True)"
 
 clean-docker:
 	-docker system prune -f
+
+clean-index:
+	$(PY) -m scripts.clean_index
+

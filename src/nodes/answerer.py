@@ -1,107 +1,125 @@
-# LLM + prompting utilities (keep this in your src/… module as you prefer)
 from typing import List, Dict
 from langchain_ollama import ChatOllama
 from langchain.schema import HumanMessage, SystemMessage
-import os, re
+import os, re, textwrap
 from dotenv import load_dotenv
 
 load_dotenv()
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b-instruct-q4_K_M")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct")
 
-llm = ChatOllama(model=OLLAMA_MODEL, temperature=0.0)
+llm = ChatOllama(
+    model=OLLAMA_MODEL,
+    temperature=0.0,
+    num_ctx=2048,
+    num_predict=256,
+    keep_alive="30m",
+)
 
-SYSTEM_PROMPT = """You are an assistant that answers ONLY based on the IPCC AR6 (SYR Longer Report).
+FALLBACK = "I have not found sufficient evidence in the IPCC to answer with confidence."
 
-Rules:
-- Respond ONLY in English, keeping technical IPCC terms.
-- Each factual statement must cite the page(s) in the exact format [p.X].
-- If the provided excerpts do not contain enough evidence to answer, reply only with:
-  "I have not found sufficient evidence in the IPCC to answer with confidence."
-- Do not add this sentence if there is already enough evidence.
-- Do not invent sources or use external knowledge.
-- Be concise.
+SYSTEM_PROMPT = """Answer using ONLY the provided excerpts from the IPCC AR6 Synthesis Report – Longer Report (SYR).
+
+Strict rules:
+- English only. Keep IPCC terminology. No external knowledge.
+- Reproduce numbers, units, ranges, scenario labels (e.g., SSP1-2.6) and calibrated confidence terms EXACTLY.
+- Mention scenarios/regions/time windows ONLY if present in the excerpts.
+- EVERY factual sentence MUST end with a page citation like [p.X]. If multiple excerpts support it, chain them [p.X][p.Y].
+- Use ONLY page numbers that appear in the excerpts.
+- DO NOT copy figure/table captions or section headers (e.g., “Figure 3.2”, “Table 2.1”, “Section 3”, “Cross-Section Box.2”). If a sentence would include them, rewrite to describe the content plainly.
+- Be concise: short paragraphs or bullets when helpful. Synthesize across excerpts instead of pasting them.
+- If the excerpts are insufficient to answer, reply EXACTLY:
+I have not found sufficient evidence in the IPCC to answer with confidence.
 """
 
-_CIT_PATTS = [
-    (re.compile(r"\(p\.\s*\[(\d+)\]\)", re.I), r"[p.\1]"),     # (p. [34]) → [p.34]
-    (re.compile(r"p\.\s*\[(\d+)\]", re.I), r"[p.\1]"),         # p. [34]   → [p.34]
-    (re.compile(r"\(p\.?\s*(\d+)\)", re.I), r"[p.\1]"),        # (p. 34)   → [p.34]
-    (re.compile(r"\[p\s*\.?\s*(\d+)\]", re.I), r"[p.\1]"),     # [p 34]/[p. 34] → [p.34]
-    (re.compile(r"\[pg\.?\s*(\d+)\]", re.I), r"[p.\1]"),       # [pg.34]   → [p.34]
-]
+_STOPWORDS = {
+    "the","a","an","and","or","of","on","in","at","to","for","with","by","from",
+    "is","are","was","were","be","been","being","that","this","these","those",
+    "what","which","who","whom","why","how","when","where","than","as","into",
+    "about","over","under","it","its","their","there","we","you","your","our",
+}
 
-def _normalize_citations(txt: str) -> str:
-    for patt, rep in _CIT_PATTS:
-        txt = patt.sub(rep, txt)
-    return txt
+_SENT_SPLIT = re.compile(r"(?<=[.?!])\s+")
 
 def _build_context(ctxs: List[Dict]) -> str:
-    """Formats retrieved excerpts as context, one per paragraph."""
-    if not ctxs:
-        return "(no retrieved excerpts)"
-    lines = []
+    blocks = []
     for c in ctxs:
-        m = c.get("metadata", {}) or {}
-        page = m.get("page", "?")
-        text = (c.get("text") or "").strip().replace("\n", " ")
-        if len(text) > 700:
-            text = text[:700] + "…"
-        lines.append(f"[p.{page}] {text}")
-    return "\n\n".join(lines)
-
-def format_citations(ctxs: List[Dict]) -> str:
-    """Generates a unique page list as links to the official PDF (markdown)."""
-    base = "https://www.ipcc.ch/report/ar6/syr/downloads/report/IPCC_AR6_SYR_LongerReport.pdf#page="
-    pages: list[int] = []
-    for c in ctxs:
-        p = (c.get("metadata") or {}).get("page", None)
-        try:
-            pages.append(int(p))
-        except (TypeError, ValueError):
+        txt = (c.get("text") or c.get("page_content") or "").strip()
+        pg  = c.get("page") or (c.get("metadata") or {}).get("page")
+        if not txt or not pg:
             continue
-    pages = sorted(set(pages))
-    return " ".join(f"[p.{p}]({base}{p})" for p in pages) if pages else "[p.?]"
+        blocks.append(f"[p.{pg}]\n{txt}")
+    return "\n\n---\n\n".join(blocks)
 
-def _extract_text(raw) -> str:
-    try:
-        if hasattr(raw, "content") and isinstance(raw.content, str):
-            return raw.content
-        if hasattr(raw, "text") and isinstance(raw.text, str):
-            return raw.text
-        if hasattr(raw, "generations"):
-            gens = raw.generations
-            if gens and gens[0] and hasattr(gens[0][0], "text"):
-                return gens[0][0].text
-    except Exception:
-        pass
-    return str(raw or "")
+def _normalize_citations(text: str) -> str:
+    text = re.sub(r"\[\s*p\s*\.?\s*(\d+)\s*\]", r"[p.\1]", text)
+    text = re.sub(r"\(\s*p\s*\.?\s*(\d+)\s*\)", r"[p.\1]", text)
+    text = re.sub(r"\s+\[p\.(\d+)\]", r" [p.\1]", text)
+    return text
+
+def _has_any_citation(text: str) -> bool:
+    return bool(re.search(r"\[p\.\d+\]", text))
+
+def _keywords(q: str) -> List[str]:
+    toks = re.findall(r"[A-Za-z0-9\-\./]+", q.lower())
+    return [t for t in toks if t not in _STOPWORDS and len(t) > 2]
+
+def _extractive_fallback(query: str, ctxs: List[Dict], max_sents: int = 5, min_sents:int = 2) -> str:
+    kws = set(_keywords(query))
+    picked: List[str] = []
+    seen = set()
+    for c in ctxs:
+        txt = (c.get("text") or c.get("page_content") or "").strip()
+        pg  = c.get("page") or (c.get("metadata") or {}).get("page")
+        if not txt or not pg:
+            continue
+        for sent in _SENT_SPLIT.split(txt):
+            s = sent.strip()
+            if not s:
+                continue
+            lower = s.lower()
+            if kws and not any(k in lower for k in kws):
+                continue
+            sig = re.sub(r"\s+", " ", lower)
+            if sig in seen:
+                continue
+            seen.add(sig)
+            if not re.search(r"\[p\.\d+\]\s*$", s):
+                s = s.rstrip(". ") + f" [p.{pg}]"
+            picked.append(s)
+            if len(picked) >= max_sents:
+                break
+        if len(picked) >= max_sents:
+            break
+
+    if len(picked) < min_sents:
+        return FALLBACK
+
+    if len(picked) == 1:
+        return picked[0]
+    return "\n".join(f"- {s}" for s in picked)
 
 def answer(query: str, ctxs: List[Dict]) -> Dict:
     if not ctxs:
-        refuse = "I have not found sufficient evidence in the IPCC to answer with confidence."
-        refuse += "\n\nCitations: [p.?]"
-        return {"answer": refuse, "contexts": []}
+        return {"answer": FALLBACK, "contexts": []}
 
     context_text = _build_context(ctxs)
-    user = (
-        "Question:\n"
-        f"{query}\n\n"
-        "IPCC excerpts (use ONLY what is below):\n"
-        f"{context_text}\n\n"
-        "Citation rule: include [p.X] right after each supported claim."
-    )
-    msg = [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=user)]
+    user = textwrap.dedent(f"""
+    Question:
+    {query}
 
-    raw = llm.invoke(msg)
-    response_text = _extract_text(raw).strip()
-    if not response_text:
-        raw = llm.invoke(msg)
-        response_text = _extract_text(raw).strip()
+    IPCC excerpts (use ONLY what is below):
+    {context_text}
 
-    response_text = _normalize_citations(response_text)
+    Remember: end EACH factual sentence with [p.X] (or multiple like [p.X][p.Y]).
+    """)
 
-    if "[p." not in response_text and "I have not found sufficient evidence" not in response_text:
-        response_text += "\n\n(Caution: no citation detected; please verify evidence)"
+    msgs = [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=user)]
+    out = llm.invoke(msgs)
+    ans = (out.content or "").strip()
+    ans = _normalize_citations(ans)
 
-    response_text += "\n\nCitations: " + format_citations(ctxs)
-    return {"answer": response_text, "contexts": ctxs}
+    if not ans or ans.strip() == FALLBACK or not _has_any_citation(ans):
+        ans = _extractive_fallback(query, ctxs)
+
+    ans = re.sub(r"[ \t]+", " ", ans).strip()
+    return {"answer": ans, "contexts": ctxs}
