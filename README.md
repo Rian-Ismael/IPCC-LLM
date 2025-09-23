@@ -36,7 +36,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/Rian-Ismael/IPCC-LLM.git
-cd ipcc-llm
+cd IPCC-LLM
 ```
 
 Create a virtual environment:
@@ -119,7 +119,6 @@ make down
 ## Evaluation (in progress)
 
 - **RAGAS** → metrics for *faithfulness* and *answer relevancy*.  
-- **Giskard** → robustness and quality testing.  
 - A curated set of ~20 manually annotated questions is in progress.
 
 ---
