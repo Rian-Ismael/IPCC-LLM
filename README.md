@@ -143,7 +143,7 @@ If you use this project in academic work:
 
 ```bibtex
 @software{climate_in_focus_2025,
-  author = {Elias de Melo, Rian Ismael},
+  authors = {Elias de Melo, Rian Ismael}, {Veríssimo, Victor de Sousa},
   title = {Climate in Focus – IPCC AR6 (SYR) Assistant with RAG + Agents},
   year = {2025},
   url = {https://github.com/Rian-Ismael/IPCC-LLM}
