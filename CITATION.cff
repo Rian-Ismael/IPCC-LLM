@@ -4,10 +4,7 @@ title: "Climate in Focus – IPCC AR6 (SYR) Assistant with RAG + Agents"
 version: "1.0.0"
 date-released: 2025-09-15
 authors:
-authors:
-  - family-names: "Elias de Melo"
-    given-names: "Rian Ismael"
-  - family-names: "Verissimo"
-    given-names: "Victor"
-repository-code: "https://github.com/seuusuario/ipcc-llm"
+  family-names: "Elias de Melo; Verissímo"
+  given-names: "Rian Ismael; Victor"
+repository-code: "https://github.com/Rian-Ismael/IPCC-LLM"
 license: "MIT"
