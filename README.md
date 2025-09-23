@@ -21,7 +21,7 @@ The system:
   - **Safety** → adds automatic disclaimers.
 - **Web UI in Streamlit** (PT/EN).
 - **Citations with direct links** to the official IPCC PDF.
-- **Planned evaluation** with **RAGAS** and **Giskard**.
+- **Planned evaluation** with **RAGAS**.
 
 ---
 
