@@ -6,7 +6,6 @@ pymupdf>=1.24.7
 pydantic>=2.7
 python-dotenv>=1.0.1
 streamlit>=1.36
-giskard[llm]>=2.13.0
 psutil>=5.9
 langchain-ollama>=0.1.0
 numpy

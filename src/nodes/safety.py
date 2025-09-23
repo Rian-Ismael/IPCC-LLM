@@ -4,9 +4,6 @@ FALLBACK = "I have not found sufficient evidence in the IPCC to answer with conf
 
 def apply_safety(ans: Dict) -> Dict:
     txt = (ans or {}).get("answer", "") or ""
-    if txt.strip() == FALLBACK:
-        return ans
-
     disclaimer = (
         "\n\n---\n"
         "_Disclaimer_: Informational content based on IPCC AR6 (SYR). "
