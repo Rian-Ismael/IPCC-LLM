@@ -19,7 +19,7 @@ The system:
   - **Answerer** → generates answers with mandatory citations.
   - **Self-check** → rejects answers without supporting evidence.
   - **Safety** → adds automatic disclaimers.
-- **Web UI in Streamlit** (PT/EN).
+- **Web UI in Streamlit** (EN).
 - **Citations with direct links** to the official IPCC PDF.
 - **Planned evaluation** with **RAGAS**.
 
