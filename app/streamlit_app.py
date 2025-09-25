@@ -123,7 +123,6 @@ if "messages" not in st.session_state:
 
 graph = st.session_state.graph
 
-# ---------- Histórico ----------
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         role_class = "assistant" if m["role"] == "assistant" else "user"
@@ -144,7 +143,6 @@ for m in st.session_state.messages:
                     )
                 st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------- Entrada ----------
 user_query = st.chat_input("Digite sua pergunta sobre o relatório")
 if user_query:
     st.session_state.messages.append({"role": "user", "content": user_query, "contexts": None})
