@@ -1,15 +1,13 @@
 import os
 os.environ.setdefault("GRPC_VERBOSITY", "ERROR")
 os.environ.setdefault("GRPC_TRACE", "")
-os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")  # silencia alguns warnings nativos
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
-# (opcional) reduzir verbosidade do absl
 try:
     from absl import logging as absl_logging
     absl_logging.set_verbosity(absl_logging.ERROR)
 except Exception:
     pass
-
 
 from typing import List, Dict
 import os, re, textwrap
@@ -29,7 +27,6 @@ def make_llm():
             model=gem_model,
             temperature=0.0,
         )
-    # Fallback local (apenas se não houver chave do Gemini)
     ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct")
     return ChatOllama(
         model=ollama_model,
@@ -41,30 +38,35 @@ def make_llm():
     )
 
 llm = make_llm()
-
 print("LLM ativo:", type(llm).__name__)
 
-FALLBACK = "I have not found sufficient evidence in the IPCC to answer with confidence."
+FALLBACK = "Não encontrei evidências suficientes no IPCC para responder com confiança."
 
-SYSTEM_PROMPT = """Answer using ONLY the provided excerpts from the IPCC AR6 Synthesis Report – Longer Report (SYR).
+SYSTEM_PROMPT = """Responda usando APENAS os trechos fornecidos do IPCC AR6 Synthesis Report – Longer Report (SYR).
 
-Strict rules:
-- English only. Keep IPCC terminology. No external knowledge.
-- Reproduce numbers, units, ranges, scenario labels (e.g., SSP1-2.6) and calibrated confidence terms EXACTLY.
-- Mention scenarios/regions/time windows ONLY if present in the excerpts.
-- EVERY factual sentence MUST end with a page citation like [p.X]. If multiple excerpts support it, chain them [p.X][p.Y].
-- Use ONLY page numbers that appear in the excerpts.
-- DO NOT copy figure/table captions or section headers (e.g., “Figure 3.2”, “Table 2.1”, “Section 3”, “Cross-Section Box.2”). If a sentence would include them, rewrite to describe the content plainly.
-- Be concise: short paragraphs or bullets when helpful. Synthesize across excerpts instead of pasting them.
-- If the excerpts are insufficient to answer, reply EXACTLY:
-I have not found sufficient evidence in the IPCC to answer with confidence.
+Regras:
+- Escreva em português do Brasil. Mantenha termos técnicos do IPCC como aparecem nos trechos quando não houver tradução inequívoca.
+- Reproduza números, unidades, intervalos, rótulos de cenários (ex.: SSP1-2.6) e termos calibrados de confiança exatamente como nos trechos.
+- Mencione cenários/regiões/janelas de tempo SOMENTE se constarem nos trechos.
+- Cada frase factual deve terminar com uma citação de página no formato [p.X]; se usar vários trechos, encadeie [p.X][p.Y].
+- Use apenas páginas que aparecem nos trechos.
+- NÃO copie cabeçalhos de seção/figura/tabela (ex.: “Figure 3.2”). Descreva o conteúdo em texto corrido.
+- Seja conciso: parágrafos curtos ou bullets quando ajudar.
+- Se os trechos forem insuficientes, responda exatamente:
+Não encontrei evidências suficientes no IPCC para responder com confiança.
 """
 
+# Stopwords bilingues (PT + EN) para o fallback extractivo
 _STOPWORDS = {
+    # EN
     "the","a","an","and","or","of","on","in","at","to","for","with","by","from",
     "is","are","was","were","be","been","being","that","this","these","those",
     "what","which","who","whom","why","how","when","where","than","as","into",
     "about","over","under","it","its","their","there","we","you","your","our",
+    # PT-BR
+    "o","a","os","as","um","uma","uns","umas","de","do","da","dos","das","no","na","nos","nas",
+    "em","por","para","com","sem","ao","aos","à","às","e","ou","que","como","quando","onde",
+    "qual","quais","porque","sobre","entre","até","desde","após","antes","mais","menos"
 }
 
 _SENT_SPLIT = re.compile(r"(?<=[.?!])\s+")
@@ -96,17 +98,15 @@ def _extractive_fallback(query: str, ctxs: List[Dict], max_sents: int = 5, min_s
     kws = set(_keywords(query))
     picked: List[str] = []
     seen = set()
-    for c in ctxs:
-        txt = (c.get("text") or c.get("page_content") or "").strip()
-        pg  = c.get("page") or (c.get("metadata") or {}).get("page")
-        if not txt or not pg:
-            continue
+
+    def pick_from_text(txt, pg, require_kws=True):
+        nonlocal picked
         for sent in _SENT_SPLIT.split(txt):
             s = sent.strip()
             if not s:
                 continue
             lower = s.lower()
-            if kws and not any(k in lower for k in kws):
+            if require_kws and kws and not any(k in lower for k in kws):
                 continue
             sig = re.sub(r"\s+", " ", lower)
             if sig in seen:
@@ -117,15 +117,29 @@ def _extractive_fallback(query: str, ctxs: List[Dict], max_sents: int = 5, min_s
             picked.append(s)
             if len(picked) >= max_sents:
                 break
+
+    # 1ª passada: com keywords (PT/EN)
+    for c in ctxs:
+        txt = (c.get("text") or c.get("page_content") or "").strip()
+        pg  = c.get("page") or (c.get("metadata") or {}).get("page")
+        if txt and pg:
+            pick_from_text(txt, pg, require_kws=True)
         if len(picked) >= max_sents:
             break
 
+    # 2ª passada: relaxada (se nada casou)
+    if len(picked) < min_sents:
+        for c in ctxs:
+            txt = (c.get("text") or c.get("page_content") or "").strip()
+            pg  = c.get("page") or (c.get("metadata") or {}).get("page")
+            if txt and pg:
+                pick_from_text(txt, pg, require_kws=False)
+            if len(picked) >= max_sents:
+                break
+
     if len(picked) < min_sents:
         return FALLBACK
-
-    if len(picked) == 1:
-        return picked[0]
-    return "\n".join(f"- {s}" for s in picked)
+    return picked[0] if len(picked) == 1 else "\n".join(f"- {s}" for s in picked)
 
 def answer(query: str, ctxs: List[Dict]) -> Dict:
     if not ctxs:
@@ -133,13 +147,13 @@ def answer(query: str, ctxs: List[Dict]) -> Dict:
 
     context_text = _build_context(ctxs)
     user = textwrap.dedent(f"""
-    Question:
+    Pergunta:
     {query}
 
-    IPCC excerpts (use ONLY what is below):
+    Trechos do IPCC (use APENAS o que está abaixo):
     {context_text}
 
-    Remember: end EACH factual sentence with [p.X] (or multiple like [p.X][p.Y]).
+    Lembre-se: termine CADA frase factual com [p.X] (ou múltiplas como [p.X][p.Y]).
     """)
 
     msgs = [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=user)]

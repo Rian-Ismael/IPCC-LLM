@@ -1,18 +1,18 @@
 # Resultado de Avaliação (RAGAS)
 
-- **Amostras**: 1
-- **Faithfulness (média)**: 1.0
-- **Answer Relevancy (média)**: 0.9072
-- **Context Precision (média)**: 0.6821
-- **Context Recall (média)**: 1.0
+- **Amostras**: 20
+- **Faithfulness (média)**: 0.97
+- **Answer Relevancy (média)**: 0.8254
+- **Context Precision (média)**: 0.5893
+- **Context Recall (média)**: 0.8643
 
 ## Latência (ms)
-- média: 32776 | min: 32776 | max: 32776
-- p50: 32776 | p95: 32776
+- média: 56657 | min: 42034 | max: 99014
+- p50: 52518 | p95: 86664
 
 ## Footprint (média aproximada do processo)
-- **Pico de memória**: 1069.1 MB
-- **CPU média do processo**: 15.5%
+- **Pico de memória**: 3125.3 MB
+- **CPU média do processo**: 63.7%
 
 ## Auditoria do Retriever (gold_page)
 - **gold_hit_rate**: 0.00%

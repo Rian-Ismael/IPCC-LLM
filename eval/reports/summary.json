@@ -1,21 +1,21 @@
 {
-  "samples": 1,
+  "samples": 20,
   "metrics": {
-    "faithfulness_mean": 1.0,
-    "answer_relevancy_mean": 0.9072,
-    "context_precision_mean": 0.6821,
-    "context_recall_mean": 1.0
+    "faithfulness_mean": 0.97,
+    "answer_relevancy_mean": 0.8254,
+    "context_precision_mean": 0.5893,
+    "context_recall_mean": 0.8643
   },
   "latency_ms": {
-    "mean": 32776,
-    "p50": 32776,
-    "p95": 32776,
-    "min": 32776,
-    "max": 32776
+    "mean": 56657,
+    "p50": 52518,
+    "p95": 86664,
+    "min": 42034,
+    "max": 99014
   },
   "footprint": {
-    "memory_peak_mb": 1069.1,
-    "cpu_percent_avg": 15.5
+    "memory_peak_mb": 3125.3,
+    "cpu_percent_avg": 63.7
   },
   "audits": {
     "gold_hit_rate": 0.0
