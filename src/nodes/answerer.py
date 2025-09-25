@@ -1,19 +1,46 @@
+import os
+os.environ.setdefault("GRPC_VERBOSITY", "ERROR")
+os.environ.setdefault("GRPC_TRACE", "")
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")  # silencia alguns warnings nativos
+
+# (opcional) reduzir verbosidade do absl
+try:
+    from absl import logging as absl_logging
+    absl_logging.set_verbosity(absl_logging.ERROR)
+except Exception:
+    pass
+
+
 from typing import List, Dict
-from langchain_ollama import ChatOllama
-from langchain.schema import HumanMessage, SystemMessage
 import os, re, textwrap
 from dotenv import load_dotenv
-
 load_dotenv()
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct")
 
-llm = ChatOllama(
-    model=OLLAMA_MODEL,
-    temperature=0.0,
-    num_ctx=2048,
-    num_predict=256,
-    keep_alive="30m",
-)
+from langchain.schema import HumanMessage, SystemMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
+
+# -------- LLM factory: usa Gemini se houver chave; fallback para Ollama --------
+def make_llm():
+    google_key = os.getenv("GOOGLE_API_KEY")
+    if google_key:
+        gem_model = os.getenv("GEMINI_MODEL", "gemini-2.5-pro")
+        return ChatGoogleGenerativeAI(
+            model=gem_model,
+            temperature=0.0,
+        )
+    # Fallback local (apenas se não houver chave do Gemini)
+    ollama_model = os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct")
+    return ChatOllama(
+        model=ollama_model,
+        temperature=0.0,
+        num_ctx=2048,
+        num_predict=256,
+        keep_alive="30m",
+        base_url=os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434"),
+    )
+
+llm = make_llm()
 
 FALLBACK = "I have not found sufficient evidence in the IPCC to answer with confidence."
 
