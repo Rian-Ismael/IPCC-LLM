@@ -17,9 +17,7 @@
     "memory_peak_mb": 3125.3,
     "cpu_percent_avg": 63.7
   },
-  "audits": {
-    "gold_hit_rate": 0.0
-  },
+
   "paths": {
     "scores_csv": "eval\\reports\\ragas_scores.csv",
     "raw_csv": "eval\\reports\\raw_results.csv"
