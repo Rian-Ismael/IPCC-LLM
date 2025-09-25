@@ -1,7 +1,6 @@
-# eval/make_gt_from_pdf.py
 import json, argparse
 from pathlib import Path
-import fitz  # PyMuPDF
+import fitz 
 import re
 import textwrap
 
@@ -21,17 +20,13 @@ def write_jsonl(p: Path, rows):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 def clean_page_text(txt: str) -> str:
-    # remove números de página soltos e cabeçalhos óbvios
-    txt = re.sub(r"\n{2,}", "\n\n", txt)          # normaliza quebras
-    txt = re.sub(r"[ \t]+", " ", txt)             # espaços múltiplos
-    # des-hifenização simples (palavra-\ncontinua -> palavracontinua)
+    txt = re.sub(r"\n{2,}", "\n\n", txt)
+    txt = re.sub(r"[ \t]+", " ", txt)
     txt = re.sub(r"(\w)-\n(\w)", r"\1\2", txt)
-    # quebra longa em 1 parágrafo (ajuda o matcher do RAGAS)
     txt = textwrap.dedent(txt).strip()
     return txt
 
 def extract_page_text(pdf_path: Path, page_num: int) -> str:
-    # gold_page é 1-based; PyMuPDF é 0-based
     idx = max(0, page_num - 1)
     with fitz.open(pdf_path) as doc:
         if idx >= len(doc):
@@ -61,7 +56,6 @@ def main():
                 txt = clean_page_text(txt)
                 r["ground_truth"] = txt[:args.max_chars] if txt else ""
             except Exception:
-                # se der erro no parse dessa linha, só segue
                 pass
         new.append(r)
 

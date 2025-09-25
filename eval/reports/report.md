@@ -14,10 +14,3 @@
 - **Pico de memória**: 794.1 MB
 - **CPU média do processo**: 10.7%
 
-## Auditoria do Retriever (gold_page)
-- **gold_hit_rate**: 0.00%
-
-## Observações
-- As métricas de contexto (precision/recall) vêm do RAGAS puro.
-- O footprint é amostrado durante toda a execução (0.5s), aproximado para seu processo.
-- A auditoria gold_hit_rate não altera as métricas do RAGAS; serve apenas para checar o retriever.
