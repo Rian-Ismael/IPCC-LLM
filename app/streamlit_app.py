@@ -70,7 +70,11 @@ with st.sidebar:
     st.button("🧹 Clear chat", type="secondary", use_container_width=True, on_click=_clear)
 
     st.divider()
-    st.caption("**Model:** " + os.getenv("OLLAMA_MODEL", "qwen2.5:7b-instruct"))
+    if os.getenv("GOOGLE_API_KEY"):
+        model_label = f"Gemini: {os.getenv('GEMINI_MODEL', 'gemini-2.5-pro')}"
+    else:
+        model_label = f"Ollama: {os.getenv('OLLAMA_MODEL', 'qwen2.5:7b-instruct')}"
+    st.caption(f"**Model:** {model_label}")
     st.caption("**Vector top_k:** " + os.getenv("TOP_K", "4"))
     st.caption("**Rerank:** " + ("ON" if os.getenv("RERANK_ENABLE","1")=="1" else "OFF"))
     st.caption("**Corpus:** IPCC AR6 – Synthesis Report (Longer Report)")

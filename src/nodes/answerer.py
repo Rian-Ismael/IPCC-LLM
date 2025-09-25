@@ -42,6 +42,8 @@ def make_llm():
 
 llm = make_llm()
 
+print("LLM ativo:", type(llm).__name__)
+
 FALLBACK = "I have not found sufficient evidence in the IPCC to answer with confidence."
 
 SYSTEM_PROMPT = """Answer using ONLY the provided excerpts from the IPCC AR6 Synthesis Report – Longer Report (SYR).

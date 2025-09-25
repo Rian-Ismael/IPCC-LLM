@@ -1,23 +1,25 @@
 {
-  "samples": 20,
+  "samples": 1,
   "metrics": {
-    "faithfulness_mean": 0.9582,
-    "answer_relevancy_mean": 0.8231,
-    "context_precision_mean": 0.7247,
-    "context_recall_mean": 0.4262
+    "faithfulness_mean": 1.0,
+    "answer_relevancy_mean": 0.9072,
+    "context_precision_mean": 0.6821,
+    "context_recall_mean": 1.0
   },
   "latency_ms": {
-    "mean": 14690,
-    "p50": 14901,
-    "p95": 18061,
-    "min": 10273,
-    "max": 18243
+    "mean": 32776,
+    "p50": 32776,
+    "p95": 32776,
+    "min": 32776,
+    "max": 32776
   },
   "footprint": {
-    "memory_peak_mb": 794.1,
-    "cpu_percent_avg": 10.7
+    "memory_peak_mb": 1069.1,
+    "cpu_percent_avg": 15.5
   },
-
+  "audits": {
+    "gold_hit_rate": 0.0
+  },
   "paths": {
     "scores_csv": "eval\\reports\\ragas_scores.csv",
     "raw_csv": "eval\\reports\\raw_results.csv"
