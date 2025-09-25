@@ -56,7 +56,6 @@ Regras:
 Não encontrei evidências suficientes no IPCC para responder com confiança.
 """
 
-# Stopwords bilingues (PT + EN) para o fallback extractivo
 _STOPWORDS = {
     # EN
     "the","a","an","and","or","of","on","in","at","to","for","with","by","from",
@@ -118,7 +117,6 @@ def _extractive_fallback(query: str, ctxs: List[Dict], max_sents: int = 5, min_s
             if len(picked) >= max_sents:
                 break
 
-    # 1ª passada: com keywords (PT/EN)
     for c in ctxs:
         txt = (c.get("text") or c.get("page_content") or "").strip()
         pg  = c.get("page") or (c.get("metadata") or {}).get("page")
@@ -127,7 +125,6 @@ def _extractive_fallback(query: str, ctxs: List[Dict], max_sents: int = 5, min_s
         if len(picked) >= max_sents:
             break
 
-    # 2ª passada: relaxada (se nada casou)
     if len(picked) < min_sents:
         for c in ctxs:
             txt = (c.get("text") or c.get("page_content") or "").strip()

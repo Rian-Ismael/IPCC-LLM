@@ -1,4 +1,3 @@
-# scripts/graph_export.py
 from pathlib import Path
 import argparse
 

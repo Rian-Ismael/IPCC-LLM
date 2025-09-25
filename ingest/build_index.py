@@ -38,10 +38,9 @@ def main(pdf_path: str, index_dir: str):
 
     coll = client.get_or_create_collection(
         name="ipcc",
-        metadata={"hnsw:space": "cosine"}  # ESSENCIAL
+        metadata={"hnsw:space": "cosine"}
     )
 
-    # 5) adiciona
     ids = [f"ipcc-{i}" for i in range(len(chunks))]
     texts = [ch["text"] for ch in chunks]
     metas = [ch["metadata"] for ch in chunks]
