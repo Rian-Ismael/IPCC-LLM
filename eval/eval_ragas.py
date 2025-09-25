@@ -368,11 +368,6 @@ def run_eval(eval_path: str = EVAL_PATH) -> None:
         else:
             f.write(f"- **gold_hit_rate**: {gh:.2%}\n\n")
 
-        f.write("## Observações\n")
-        f.write("- As métricas de contexto (precision/recall) vêm do RAGAS puro.\n")
-        f.write("- O footprint é amostrado durante toda a execução (0.5s), aproximado para seu processo.\n")
-        f.write("- A auditoria gold_hit_rate não altera as métricas do RAGAS; serve apenas para checar o retriever.\n")
-
     print("[DONE] Avaliação salva em:")
     print(f"- {REPORTS_DIR / 'report.md'}")
     print(f"- {REPORTS_DIR / 'raw_results.csv'}")

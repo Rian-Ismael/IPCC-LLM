@@ -1,4 +1,3 @@
-# app/streamlit_app.py
 import os, sys, time
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if ROOT not in sys.path:
@@ -10,18 +9,12 @@ load_dotenv()
 import streamlit as st
 from src.graph import build_graph
 
-# -----------------------------------------------------------------------------
-# Página
-# -----------------------------------------------------------------------------
 st.set_page_config(
     page_title="Clima em Foco – IPCC AR6 (SYR)",
     page_icon="🌍",
     layout="wide",
 )
 
-# -----------------------------------------------------------------------------
-# Estilo (tema eco + watermark de globo)
-# -----------------------------------------------------------------------------
 st.markdown("""
 <style>
 :root{
@@ -106,28 +99,21 @@ html, body, [data-testid="stAppViewContainer"]{ background:var(--bg); color:var(
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# Estado / Grafo
-# -----------------------------------------------------------------------------
 if "graph" not in st.session_state:
     st.session_state.graph = build_graph()
 
 def _clear():
     st.session_state.messages = [{
         "role": "assistant",
-        "content": "Olá! Pergunte sobre o IPCC AR6 (SYR). Eu responderei **com citações** no formato `[p.X]`.",
+        "content": "Olá! Pergunte sobre o IPCC AR6 (SYR).",
         "contexts": None,
     }]
 
-# -----------------------------------------------------------------------------
-# Sidebar (minimalista: Limpar chat • Modelo • Rerank)
-# -----------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### ⚙️")
     st.button("🧹 Limpar chat", type="secondary", use_container_width=True, on_click=_clear)
 
     st.divider()
-    # Modelo (apenas rótulo informativo)
     if os.getenv("GOOGLE_API_KEY"):
         model_label = f"Gemini: {os.getenv('GEMINI_MODEL', 'gemini-2.5-pro')}"
     else:
@@ -137,23 +123,16 @@ with st.sidebar:
     rerank_on = (os.getenv("RERANK_ENABLE", "1") == "1")
     st.caption(f"**Rerank:** {'Ligado' if rerank_on else 'Desligado'}")
 
-# -----------------------------------------------------------------------------
-# Header
-# -----------------------------------------------------------------------------
 st.markdown(f"""
 <div class="header">
   <div class="badges">
-    <span class="badge">🌍 IPCC • Evidências</span>
-    <span class="badge">Rerank: {'Ligado' if rerank_on else 'Desligado'}</span>
+    <span class="badge">🌍 Painel Intergovernamental sobre Mudanças Climáticas (IPCC)</span>
   </div>
   <h1>Clima em Foco – IPCC AR6 (SYR)</h1>
   <div class="subtitle">Pergunte sobre o relatório. Respostas objetivas, com números e citações de páginas.</div>
 </div>
 """, unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# Mensagens (estado)
-# -----------------------------------------------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = [{
         "role": "assistant",
@@ -184,9 +163,6 @@ for m in st.session_state.messages:
                     )
                 st.markdown('</div>', unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# Chat input
-# -----------------------------------------------------------------------------
 user_query = st.chat_input("Digite sua pergunta sobre o relatório")
 if user_query:
     st.session_state.messages.append({"role": "user", "content": user_query, "contexts": None})
