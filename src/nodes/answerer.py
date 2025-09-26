@@ -18,7 +18,6 @@ from langchain.schema import HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_ollama import ChatOllama
 
-# -------- LLM factory: usa Gemini se houver chave; fallback para Ollama --------
 def make_llm():
     google_key = os.getenv("GOOGLE_API_KEY")
     if google_key:
@@ -57,12 +56,11 @@ Não encontrei evidências suficientes no IPCC para responder com confiança.
 """
 
 _STOPWORDS = {
-    # EN
     "the","a","an","and","or","of","on","in","at","to","for","with","by","from",
     "is","are","was","were","be","been","being","that","this","these","those",
     "what","which","who","whom","why","how","when","where","than","as","into",
     "about","over","under","it","its","their","there","we","you","your","our",
-    # PT-BR
+
     "o","a","os","as","um","uma","uns","umas","de","do","da","dos","das","no","na","nos","nas",
     "em","por","para","com","sem","ao","aos","à","às","e","ou","que","como","quando","onde",
     "qual","quais","porque","sobre","entre","até","desde","após","antes","mais","menos"

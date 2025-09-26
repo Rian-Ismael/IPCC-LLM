@@ -20,7 +20,6 @@ def build_graph():
     g = StateGraph(State)
     sup = Supervisor()
 
-    # --- novo nó: moderator ---
     def node_moderate(s: State):
         dec = moderate(s["query"])
         if dec == "reject_unsafe":
@@ -59,7 +58,6 @@ def build_graph():
         s["stage"] = "safety"
         return s
 
-    # --- registrar nós ---
     g.add_node("moderate", node_moderate)
     g.add_node("retrieve", node_retrieve)
     g.add_node("answer", node_answer)
@@ -67,10 +65,8 @@ def build_graph():
     g.add_node("safety", node_safety)
     g.add_node("supervisor", sup)
 
-    # entrypoint segue sendo o supervisor
     g.set_entry_point("supervisor")
 
-    # supervisor decide o próximo passo (inclui "end")
     g.add_conditional_edges(
         "supervisor",
         sup.decide_next,
@@ -80,17 +76,15 @@ def build_graph():
             "answer": "answer",
             "selfcheck": "selfcheck",
             "safety": "safety",
-            "end": END,   # ⬅️ permite finalizar imediatamente
+            "end": END, 
         },
     )
 
-    # cada nó volta para o supervisor (menos o fim)
     g.add_edge("moderate", "supervisor")
     g.add_edge("retrieve", "supervisor")
     g.add_edge("answer", "supervisor")
     g.add_edge("selfcheck", "supervisor")
 
-    # safety continua levando ao fim para os casos normais
     g.add_edge("safety", END)
 
     return g.compile()

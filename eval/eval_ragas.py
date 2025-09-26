@@ -2,14 +2,12 @@ import os, sys, time, json, threading, re
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional, cast
 
-# ------- Limitar paralelismo de libs p/ não explodir CPU/RAM -------
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 os.environ.setdefault("MKL_NUM_THREADS", "1")
 os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
 
-# Carregar .env cedo para respeitar USE_GEMINI_JUDGE / GOOGLE_API_KEY
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -28,24 +26,19 @@ from ragas.metrics import (
     context_recall,
 )
 
-# Embeddings
 try:
     from langchain_huggingface import HuggingFaceEmbeddings
 except ImportError:
     from langchain_community.embeddings import HuggingFaceEmbeddings
 
-# Permitir: python -m eval.eval_ragas (a partir da raiz)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# >>> usa o seu build_graph + State <<<
 from src.graph import build_graph, State
 
-# LLMs (Ollama e Gemini)
 from langchain_ollama import ChatOllama
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-# ---------- Config ----------
-# Autodetect do caminho de avaliação
+
 _env_eval = os.getenv("EVAL_PATH")
 if _env_eval:
     EVAL_PATH = _env_eval
@@ -57,16 +50,13 @@ else:
 REPORTS_DIR = Path(os.getenv("EVAL_REPORTS_DIR", "eval/reports"))
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Preferir Gemini se explicitamente habilitado E houver chave
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 GEMINI_JUDGE_MODEL = os.getenv("GEMINI_JUDGE_MODEL", "gemini-2.5-pro")
-USE_GEMINI_JUDGE = os.getenv("USE_GEMINI_JUDGE", "1").strip()  # "1" ou "0"
+USE_GEMINI_JUDGE = os.getenv("USE_GEMINI_JUDGE", "1").strip()
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-# Fallback local (padrão solicitado)
 OLLAMA_JUDGE_MODEL = os.getenv("OLLAMA_JUDGE_MODEL", "qwen2.5:7b-instruct")
 
-# ---------- Judge Factory ----------
 def make_judge():
     """
     Se USE_GEMINI_JUDGE == "1" e GOOGLE_API_KEY existir, usa Gemini 2.5 Pro (remote, alivia CPU/RAM).
@@ -105,7 +95,6 @@ def make_embeddings():
     )
     return HuggingFaceEmbeddings(model_name=model_name)
 
-# ---------- helpers ----------
 def load_jsonl(path: str) -> List[Dict[str, Any]]:
     p = Path(path)
     if not p.exists():
@@ -148,19 +137,17 @@ def extract_answer_and_contexts(state_out: Dict[str, Any]) -> Tuple[str, List[st
         if isinstance(txt, str) and txt.strip():
             ctx_texts.append(txt)
     if not ctx_texts:
-        ctx_texts = [""]  # RAGAS exige lista não vazia
+        ctx_texts = [""]
     return answer_txt, ctx_texts
 
-# ---------- Footprint sampler (CPU/RAM) ----------
 class FootprintSampler:
     def __init__(self, period_sec: float = 0.5):
         self.proc = psutil.Process(os.getpid())
         self.period = period_sec
         self._stop = threading.Event()
-        self.samples_cpu = []   # process CPU %
-        self.peak_rss = 0       # bytes
+        self.samples_cpu = []
+        self.peak_rss = 0
 
-        # Prime the CPU measurement baseline
         try:
             self.proc.cpu_percent(None)
         except Exception:
@@ -169,8 +156,8 @@ class FootprintSampler:
     def _tick(self):
         while not self._stop.is_set():
             try:
-                cpu = self.proc.cpu_percent(None)  # % desde a última chamada
-                rss = self.proc.memory_info().rss  # bytes
+                cpu = self.proc.cpu_percent(None)
+                rss = self.proc.memory_info().rss
                 self.samples_cpu.append(cpu)
                 if rss > self.peak_rss:
                     self.peak_rss = rss
@@ -196,7 +183,6 @@ class FootprintSampler:
     def mem_peak_mb(self) -> Optional[float]:
         return round(self.peak_rss / (1024 * 1024), 1) if self.peak_rss else None
 
-# ---------- Auditoria auxiliar: gold_page hit ----------
 def pages_in_texts(texts: Any) -> set:
     """
     Extrai números de página a partir de tags como [p.X] presentes nos textos dos contextos.
@@ -225,17 +211,13 @@ def gold_hit_row(row: pd.Series) -> Optional[bool]:
     ctx_pages = pages_in_texts(row.get("contexts"))
     return gold in ctx_pages if ctx_pages else False
 
-# ---------- main ----------
 def run_eval(eval_path: str = EVAL_PATH) -> None:
     print(f"[eval] Usando arquivo: {eval_path}")
 
-    # 1) Carrega perguntas do JSONL
     items = load_jsonl(eval_path)
 
-    # 2) Compila o grafo da aplicação
     app = build_graph()
 
-    # Inicia amostragem de footprint
     sampler = FootprintSampler(period_sec=0.5)
     sampler.start()
 
@@ -264,21 +246,17 @@ def run_eval(eval_path: str = EVAL_PATH) -> None:
         })
         print(f"[{i:02d}/{len(items)}] {elapsed_ms} ms | '{q[:70]}...'")
 
-    # Para amostragem
     sampler.stop()
 
-    # 3) DataFrame -> Dataset p/ RAGAS
     df = pd.DataFrame(rows)
     ds_cols = ["question", "answer", "contexts"]
     if "ground_truth" in df.columns and df["ground_truth"].notna().any():
         ds_cols.append("ground_truth")
     ds = Dataset.from_pandas(df[ds_cols])
 
-    # 4) Roda RAGAS (puro) com métricas pedidas
     judge = make_judge()
     embedder = make_embeddings()
 
-    # Se sua máquina for fraca, max_workers=1
     ragas_result = ragas_evaluate(
         ds,
         metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
@@ -287,25 +265,21 @@ def run_eval(eval_path: str = EVAL_PATH) -> None:
         run_config=RunConfig(timeout=600, max_workers=1),
     )
 
-    df_scores = ragas_result.to_pandas()  # type: ignore
+    df_scores = ragas_result.to_pandas()
     merge_key = "user_input" if "user_input" in df_scores.columns else "question"
     df_merged = df.merge(df_scores, left_on="question", right_on=merge_key, how="left")
 
-    # ---- Auditoria do retriever via gold_page (NÃO interfere no RAGAS) ----
     df_merged["gold_hit"] = df_merged.apply(gold_hit_row, axis=1)
     gold_rate = float(df_merged["gold_hit"].mean(skipna=True)) if "gold_hit" in df_merged else None
 
-    # 5) Persistência
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     (REPORTS_DIR / "ragas_scores.csv").write_text(df_scores.to_csv(index=False), encoding="utf-8")
     (REPORTS_DIR / "raw_results.csv").write_text(df_merged.to_csv(index=False), encoding="utf-8")
 
-    # Resumo (latência + footprint)
     lat = df_merged["latency_ms"].astype(float)
     p50 = int(lat.quantile(0.50)) if len(lat) else 0
     p95 = int(lat.quantile(0.95)) if len(lat) else 0
 
-    # médias das métricas (se existirem)
     def safe_mean(col: str) -> Optional[float]:
         return float(df_merged[col].mean()) if (col in df_merged and df_merged[col].notna().any()) else None
 
@@ -341,7 +315,6 @@ def run_eval(eval_path: str = EVAL_PATH) -> None:
 
     (REPORTS_DIR / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # Report .md (inclui as novas métricas e auditoria)
     with (REPORTS_DIR / "report.md").open("w", encoding="utf-8") as f:
         f.write("# Resultado de Avaliação (RAGAS)\n\n")
         f.write(f"- **Amostras**: {summary['samples']}\n")

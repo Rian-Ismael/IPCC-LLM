@@ -1,17 +1,16 @@
 # src/utils/pdf_loader.py
 import re
-import fitz  # PyMuPDF
+import fitz
 
-# normalizações leves: hífens de quebra, NBSP e ligaduras comuns
 _HYPHENS = str.maketrans({
-    "\u00ad": "",   # soft hyphen (remove)
-    "\u2010": "-",  # hyphen
-    "\u2011": "-",  # non-breaking hyphen
-    "\u2012": "-",  # figure dash
-    "\u2013": "-",  # en dash
-    "\u2014": "-",  # em dash
-    "\u2015": "-",  # horizontal bar
-    "\u2212": "-",  # minus sign
+    "\u00ad": "",
+    "\u2010": "-",
+    "\u2011": "-",
+    "\u2012": "-",
+    "\u2013": "-",
+    "\u2014": "-",
+    "\u2015": "-",
+    "\u2212": "-",
 })
 _NBSP = str.maketrans({"\u00a0": " "})
 _LIGS = str.maketrans({"\ufb01": "fi", "\ufb02": "fl"})
@@ -20,11 +19,8 @@ def normalize_text(raw: str) -> str:
     if not raw:
         return ""
     txt = raw
-    # junta palavra-\ncontinuação
     txt = re.sub(r"(\w)[\-­]\s*\n\s*(\w)", r"\1\2", txt)
-    # normaliza traços, nbsp e ligaduras
     txt = txt.translate(_HYPHENS).translate(_NBSP).translate(_LIGS)
-    # colapsa espaços/linhas
     txt = re.sub(r"[ \t\f\v]+", " ", txt)
     txt = re.sub(r"\s*\n\s*", " ", txt)
     return txt.strip()
