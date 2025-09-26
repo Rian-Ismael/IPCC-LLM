@@ -16,11 +16,17 @@ class Supervisor:
         )
         return s
 
-    def decide_next(self, s: Dict[str, Any]) -> Literal["retrieve", "answer", "selfcheck", "safety"]:
+    def decide_next(self, s: Dict[str, Any]) -> Literal["moderate", "retrieve", "answer", "selfcheck", "safety", "end"]:
         stage = s.get("stage", "start")
 
         if stage == "start":
+            return "moderate"
+
+        if stage == "moderated_ok":
             return "retrieve"
+        if stage == "moderated_reject":
+            return "end" 
+
         if stage == "retrieved":
             return "answer"
         if stage == "answered":

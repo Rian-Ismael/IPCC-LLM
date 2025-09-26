@@ -9,8 +9,8 @@ def apply_safety(ans: Dict) -> Dict:
 
     disclaimer = (
         "\n\n---\n"
-        "_Disclaimer_: Informational content based on IPCC AR6 (SYR). "
-        "This does not replace official interpretation. See the full report."
+        "_Aviso_: Conteúdo informativo com base no IPCC AR6 (SYR). "
+        "Não substitui interpretação oficial. Consulte o relatório completo."
     )
     ans["answer"] = txt + disclaimer
     return ans

@@ -1,4 +1,3 @@
-# scripts/clean_index.py
 import os, shutil, sys
 from pathlib import Path
 try:
@@ -8,7 +7,7 @@ except ImportError:
     sys.exit(1)
 
 def main():
-    load_dotenv()  # carrega .env para este processo
+    load_dotenv()
     idx = os.getenv("INDEX_DIR", "data/index")
     p = Path(idx)
     print(f"[clean_index] INDEX_DIR lido do .env = {idx}")
@@ -22,7 +21,6 @@ def main():
             sys.exit(1)
     else:
         print("[clean_index] Nada para remover (pasta não existe).")
-    # garantia: recria vazia (opcional)
     p.mkdir(parents=True, exist_ok=True)
     print("[clean_index] OK.")
 

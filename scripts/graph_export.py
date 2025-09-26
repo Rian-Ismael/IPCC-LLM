@@ -1,4 +1,3 @@
-# scripts/graph_export.py
 from pathlib import Path
 import argparse
 
@@ -17,7 +16,6 @@ def main():
     app = build_graph()
     g = app.get_graph()
 
-    # PNG
     if "png" in args.fmt:
         if hasattr(g, "draw_png"):
             try:
@@ -28,7 +26,6 @@ def main():
         else:
             print("(!) draw_png indisponível nesta versão do LangGraph; tente SVG/Mermaid.")
 
-    # SVG
     if "svg" in args.fmt:
         if hasattr(g, "draw_svg"):
             try:
@@ -39,7 +36,6 @@ def main():
         else:
             print("(!) draw_svg indisponível nesta versão do LangGraph; tente PNG/Mermaid.")
 
-    # Mermaid
     if "mermaid" in args.fmt:
         mmd = None
         for method in ("draw_mermaid", "to_mermaid"):

@@ -5,17 +5,21 @@ config:
 ---
 graph TD;
 	__start__([<p>__start__</p>]):::first
-	supervisor(supervisor)
+	moderate(moderate)
 	retrieve(retrieve)
 	answer(answer)
 	selfcheck(selfcheck)
 	safety(safety)
+	supervisor(supervisor)
 	__end__([<p>__end__</p>]):::last
 	__start__ --> supervisor;
 	answer --> supervisor;
+	moderate --> supervisor;
 	retrieve --> supervisor;
 	selfcheck --> supervisor;
+	supervisor -. &nbsp;end&nbsp; .-> __end__;
 	supervisor -.-> answer;
+	supervisor -.-> moderate;
 	supervisor -.-> retrieve;
 	supervisor -.-> safety;
 	supervisor -.-> selfcheck;

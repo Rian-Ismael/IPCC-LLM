@@ -9,7 +9,7 @@ except Exception:
     def normalize_text(s: str) -> str:
         return (s or "").strip()
 
-K = int(os.getenv("TOP_K", "4"))
+K = int(os.getenv("TOP_K", "6"))
 
 MIN_SIM = float(os.getenv("RETRIEVER_MIN_SIM", "0.05"))
 
