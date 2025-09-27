@@ -19,7 +19,7 @@ O sistema:
   - **Answerer** → gera respostas com citações obrigatórias.  
   - **Self-check** → rejeita respostas sem evidências de suporte.  
   - **Safety** → adiciona avisos automáticos.  
-- **Interface Web em Streamlit** (PT/EN).  
+- **Interface Web em Streamlit** (EN).  
 - **Citações com links diretos** para o PDF oficial do IPCC.  
 - **Avaliação planejada** com **RAGAS**.  
 
@@ -48,6 +48,12 @@ source .venv/bin/activate   # Linux/Mac
 ```
 
 Instale as dependências:
+
+```bash
+make install
+```
+
+ou diretamente:
 
 ```bash
 pip install -r requirements.txt
@@ -119,7 +125,7 @@ make down
 ## Avaliação (em andamento)
 
 - **RAGAS** → métricas de *faithfulness* e *answer relevancy*.  
-- Um conjunto curado de ~20 perguntas anotadas manualmente está em desenvolvimento.  
+- Um conjunto curado de ~20 perguntas.
 
 ---
 
@@ -127,7 +133,6 @@ make down
 
 - Projeto acadêmico de **prova de conceito**.  
 - Respostas são **apenas informativas** → não substituem interpretações oficiais do IPCC.  
-- Modelos pequenos podem ocasionalmente retornar **saídas vazias**.  
 
 ---
 
